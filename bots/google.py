@@ -47,7 +47,8 @@ class GetDataByGoogleMaps:
                     continue
 
                 # sempre cria nova sessão para nao ser barrado pela cloudflare
-                if type(self._driver) == 'selenium.webdriver.chrome.webdriver.WebDriver':
+
+                if isinstance(self._driver, object):
                     self._driver.quit()
 
                 self._get_session()
