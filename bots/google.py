@@ -19,7 +19,8 @@ SEARCH_INPUT_XPATH = '//*[@id="searchboxinput"]'
 ADDRESS_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[3]/button/div/div[3]/div[1]'
 SITE_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[6]/a/div/div[3]/div[1]'
 PHONE_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[7]/button/div/div[3]/div[1]'
-DATA_COMPANY_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]'
+DATA_COMPANY_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[8]'
+
 
 class GetDataByGoogleMaps:
 
@@ -52,6 +53,9 @@ class GetDataByGoogleMaps:
                 self._get_session()
                 LOGGER.info(f"acessando url {SITE_URL}")
                 self._driver.get(SITE_URL)
+                
+                LOGGER.info("maximizando")
+                self._driver.maximize_window()
 
                 LOGGER.info(f"escrevendo no input")
                 input_search = self._driver.find_element(By.XPATH, SEARCH_INPUT_XPATH)
@@ -87,6 +91,7 @@ class GetDataByGoogleMaps:
                     LOGGER.info(f"endereço {address}")
                     LOGGER.info(f"site {site}")
                     LOGGER.info(f"phone {phone}")
+ 
                     if not phone:
                         raise Exception("not found phone")
                     data = {
