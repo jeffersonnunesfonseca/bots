@@ -1,0 +1,7 @@
+fire
+ipdb
+requests
+selenium
+webdriver-manager
+pandas
+Unidecode
