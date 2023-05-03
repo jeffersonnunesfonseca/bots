@@ -55,6 +55,8 @@ cnpj;fantasy_name
 
 # Bot para coletar dados Google Maps
 
+## Obs:
+- todos arquivos gerados serão salvos em `/tmp`
 ## Requerimentos:
 - ter um arquivo csv no seguinte padrão (obs: o robô da casa dos dados irá gerar esse arquivo):
 ```
