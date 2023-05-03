@@ -80,14 +80,15 @@ class GetDataByGoogleMaps:
                     phone = None
                     site = None
 
-                    regex_address = re.compile(r'^([\w\s]+),([\d\s]+)-([\w\s]+),([\w\s]+)-([\w\s]+),([\w\s-]+)')
+                    regex_address = re.compile(r'(\d{5}-\d{3})')
                     regex_phone = re.compile(r'^([()\d\s]+)([\d-]+)$')
                     regex_site = re.compile(r'^(http(s?):\/\/)?(www\.)?[a-zA-Z0-9\.\-\_]+(\.[a-zA-Z]{2,3})+(\/[a-zA-Z0-9\_\-\s\.\/\?\%\#\&\=]*)?$')
 
                     for info in infos:
-                        if regex_address.match(info):
-                            address = info
-                            continue
+                        if "," in info:
+                           if regex_address.search(info):
+                                address = info
+                                continue
 
                         if regex_phone.match(info):
                             phone = info
