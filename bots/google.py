@@ -16,10 +16,9 @@ SITE_URL = 'https://www.google.com/maps/'
 
 SEARCH_INPUT_XPATH = '//*[@id="searchboxinput"]'
 
-ADDRESS_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[3]/button/div/div[3]/div[1]'
-SITE_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[6]/a/div/div[3]/div[1]'
-PHONE_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]/div[7]/button/div/div[3]/div[1]'
 DATA_COMPANY_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[8]'
+DATA_COMPANY_XPATH_TRY = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]'
+
 
 
 class GetDataByGoogleMaps:
@@ -47,8 +46,7 @@ class GetDataByGoogleMaps:
                     continue
 
                 # sempre cria nova sessão para nao ser barrado pela cloudflare
-
-                if isinstance(self._driver, object):
+                if type(self._driver).__name__ == 'WebDriver':
                     self._driver.quit()
 
                 self._get_session()
@@ -65,8 +63,18 @@ class GetDataByGoogleMaps:
                 time.sleep(5)
 
                 try:
-                    LOGGER.info("Buscando bloco de dados")
-                    block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH).text
+                    LOGGER.info("Buscando bloco de dados...")    
+                    block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH)
+                    LOGGER.info("scroll to btn")            
+                    self._driver.execute_script("arguments[0].scrollIntoView();", block)
+                    block = block.text
+                    if not block:
+                        block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH_TRY)
+                        LOGGER.info("scroll to btn")            
+                        self._driver.execute_script("arguments[0].scrollIntoView();", block)
+                        block = block.text
+                        if not block:
+                            raise Exception("block not found")
                     infos = block.split("\n")
                     address = None
                     phone = None
@@ -92,7 +100,6 @@ class GetDataByGoogleMaps:
                     LOGGER.info(f"endereço {address}")
                     LOGGER.info(f"site {site}")
                     LOGGER.info(f"phone {phone}")
- 
                     if not phone:
                         raise Exception("not found phone")
                     data = {
@@ -103,6 +110,7 @@ class GetDataByGoogleMaps:
                         "phone": phone
                     }
                     df_data = pd.DataFrame([data])
+                    
 
                     # incrementa o arquivo caso exista, assim se der erro, nao perde oq ja conseguiu
                     if not os.path.isfile(filename):
@@ -114,7 +122,8 @@ class GetDataByGoogleMaps:
                     LOGGER.info(f"{row['fantasy_name']} - Não encontrado")
                     data_not_found = {
                         "fantasy_name": row['fantasy_name'],
-                        "cnpj": row['cnpj']
+                        "cnpj": row['cnpj'],
+                        "exception": str(ex)
                     }                    
                     # gera um arquivo com nao encontrados para validar depois
                     df_data_not_found = pd.DataFrame([data_not_found])

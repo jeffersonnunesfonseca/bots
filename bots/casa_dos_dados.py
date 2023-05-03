@@ -119,7 +119,7 @@ class CasaDosDados:
 
 
                 # sempre cria nova sessão para nao ser barrado pela cloudflare
-                if isinstance(self._driver, object):
+                if type(self._driver).__name__ == 'WebDriver':
                     self._driver.quit()
 
                 self._get_session()
