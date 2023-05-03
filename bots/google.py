@@ -121,6 +121,9 @@ class GetDataByGoogleMaps:
                     
                 except Exception as ex:
                     LOGGER.info(f"{row['fantasy_name']} - Não encontrado")
+                    if "Unable to locate element" in str(ex):
+                        ex = "bloco de dados não encontrado"
+                        
                     data_not_found = {
                         "fantasy_name": row['fantasy_name'],
                         "cnpj": row['cnpj'],
