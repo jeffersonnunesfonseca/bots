@@ -74,7 +74,7 @@ class GetDataByGoogleMaps:
                         self._driver.execute_script("arguments[0].scrollIntoView();", block)
                         block = block.text
                         if not block:
-                            raise Exception("block not found")
+                            raise Exception("block 2 not found")
                     infos = block.split("\n")
                     address = None
                     phone = None
@@ -122,7 +122,7 @@ class GetDataByGoogleMaps:
                 except Exception as ex:
                     LOGGER.info(f"{row['fantasy_name']} - Não encontrado")
                     if "Unable to locate element" in str(ex):
-                        ex = "bloco de dados não encontrado"
+                        ex = "block 1 not found"
                         
                     data_not_found = {
                         "fantasy_name": row['fantasy_name'],
