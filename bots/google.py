@@ -105,15 +105,20 @@ class GetDataByGoogleMaps:
                     if not phone:
                         raise Exception("not found phone")
                     
+                    phone = str(self._only_numbers(phone))
+
+                    if phone[0:2] != "55":
+                        phone = f"55{phone}"
+                    
                     if self.only_celphone and not self.is_cellphone(phone):
                         raise Exception("phone not is cellphone")
                     
                     data = {
                         "fantasy_name": row['fantasy_name'],
+                        "phone": phone,
                         "cnpj": row['cnpj'],
                         "address": address,
-                        "site": site,
-                        "phone": phone
+                        "site": site
                     }
                     df_data = pd.DataFrame([data])
                     
@@ -159,3 +164,10 @@ class GetDataByGoogleMaps:
     def is_cellphone(self, cellphone):
         CELLPHONE_RE = re.compile(r'\b\d{2}[6789]\d*\b')
         return CELLPHONE_RE.match(cellphone)
+    
+
+    def _only_numbers(self, string: str):
+        if not string:
+            return None
+        
+        return int(''.join(i for i in string if i.isdigit()))
