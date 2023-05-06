@@ -106,12 +106,12 @@ class GetDataByGoogleMaps:
                         raise Exception("not found phone")
                     
                     phone = str(self._only_numbers(phone))
-
-                    if phone[0:2] != "55":
-                        phone = f"55{phone}"
                     
                     if self.only_cellphone and not self.is_cellphone(phone):
                         raise Exception("phone not is cellphone")
+
+                    if phone[0:2] != "55":
+                        phone = f"55{phone}"
                     
                     data = {
                         "fantasy_name": row['fantasy_name'],
