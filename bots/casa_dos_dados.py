@@ -129,7 +129,7 @@ class CasaDosDados:
                 
                 cnpj = self._driver.find_element(By.XPATH, CNPJ_XPATH).text
                 fantasy_name = self._driver.find_element(By.XPATH, FANTASY_NAME_XPATH).text
-                if fantasy_name == 'MATRIZ':
+                if fantasy_name == 'MATRIZ' or fantasy_name == 'FILIAL':
                     fantasy_name = self._driver.find_element(By.XPATH, COMPANY_NAME_XPATH).text
 
                 data = {

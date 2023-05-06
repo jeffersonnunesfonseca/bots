@@ -110,7 +110,7 @@ class GetDataByGoogleMaps:
                     if phone[0:2] != "55":
                         phone = f"55{phone}"
                     
-                    if self.only_celphone and not self.is_cellphone(phone):
+                    if self.only_cellphone and not self.is_cellphone(phone):
                         raise Exception("phone not is cellphone")
                     
                     data = {
