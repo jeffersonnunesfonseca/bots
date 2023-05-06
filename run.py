@@ -22,12 +22,13 @@ def get_data_casa_dos_dados(path_to_filters=None, path_to_internals_url=None, sk
     else:
         obj.execute()
 
-def get_data_by_google_maps(path_to_companies=None, last_cnpj=None):
+def get_data_by_google_maps(path_to_companies=None, last_cnpj=None, only_celphone=True):
     
     from bots.google import GetDataByGoogleMaps
     obj = GetDataByGoogleMaps()    
     obj.path_to_companies = path_to_companies
     obj.last_cpf_cnpj = last_cnpj
+    obj.only_cellphone = only_celphone
     obj.execute()
 
 if __name__ == "__main__":

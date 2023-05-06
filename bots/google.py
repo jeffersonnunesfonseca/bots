@@ -27,6 +27,7 @@ class GetDataByGoogleMaps:
         self.path_to_companies = None
         self.last_cpf_cnpj = None
         self._driver = None
+        self.only_cellphone = False
 
     def execute(self):
         try:
@@ -103,6 +104,10 @@ class GetDataByGoogleMaps:
                     LOGGER.info(f"phone {phone}")
                     if not phone:
                         raise Exception("not found phone")
+                    
+                    if self.only_celphone and not self.is_cellphone(phone):
+                        raise Exception("phone not is cellphone")
+                    
                     data = {
                         "fantasy_name": row['fantasy_name'],
                         "cnpj": row['cnpj'],
@@ -150,3 +155,7 @@ class GetDataByGoogleMaps:
         options = webdriver.ChromeOptions()
         options.add_argument('--disable-blink-features=AutomationControlled')
         self._driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+
+    def is_cellphone(self, cellphone):
+        CELLPHONE_RE = re.compile(r'\b\d{2}[6789]\d*\b')
+        return CELLPHONE_RE.match(cellphone)
