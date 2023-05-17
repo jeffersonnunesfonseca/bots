@@ -4,22 +4,28 @@ import time
 import pandas as pd
 import os
 import re
+import random
 from unidecode import unidecode
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common import exceptions as selenium_ex
+from bots.selenium import Selenium
+from bots import utils
 
 LOGGER = logging.getLogger(__name__)
 SITE_URL = 'https://www.google.com/maps/'
 
 SEARCH_INPUT_XPATH = '//*[@id="searchboxinput"]'
 
-DATA_COMPANY_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[8]'
-DATA_COMPANY_XPATH_TRY = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]'
+DATA_COMPANY_XPATH_NEW = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[{cont}]'
+DATA_COMPANY_XPATH = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[7]'
+DATA_COMPANY_XPATH_TRY = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]'
+COMPANIES_SIDE_BAR = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div/div/a'
 
-
+LOGGER = logging.getLogger(__name__)
 
 class GetDataByGoogleMaps:
 
@@ -65,6 +71,7 @@ class GetDataByGoogleMaps:
 
                 try:
                     LOGGER.info("Buscando bloco de dados...")    
+                    
                     block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH)
                     LOGGER.info("scroll to btn")            
                     self._driver.execute_script("arguments[0].scrollIntoView();", block)
@@ -164,10 +171,166 @@ class GetDataByGoogleMaps:
     def is_cellphone(self, cellphone):
         CELLPHONE_RE = re.compile(r'\b\d{2}[6789]\d*\b')
         return CELLPHONE_RE.match(cellphone)
-    
-
+   
     def _only_numbers(self, string: str):
         if not string:
             return None
         
         return int(''.join(i for i in string if i.isdigit()))
+    
+
+
+class GetDataGoogleMapsByTerm(Selenium):
+    """ Busca dados do google maps a partir de um termo de busca, exemplo:
+        term=comércio em campo de santana ,tatuquara e região
+    """
+    URL_BASE = "https://www.google.com.br/maps/search/{term}"
+
+    def __init__(self, term, path_to_save) -> None:
+        super().__init__()
+        self.term = term # busca que deseja realizar coleta
+        self.links = None
+        self.last_link = None
+        self.path_to_save = path_to_save
+
+    def execute(self):
+        try:
+            self._get_session()
+            if not self.links:
+                url = self.URL_BASE.replace('{term}', str(self.term))
+                self._access_url(url)
+                self.links = self._get_internal_link_companies()
+
+            LOGGER.info(f"Total links: {len(self.links)}")
+
+            filename = f'{self.path_to_save}lead_{datetime.now().strftime("%Y%m%d")}.csv'            
+            for link in self.links:
+                if self.last_link and link != self.last_link:
+                    continue
+
+                self.last_link = None
+                
+                try:
+                    data = self._get_data(link)
+                    df_data = pd.DataFrame([data])                   
+
+                    # incrementa o arquivo caso exista, assim se der erro, nao perde oq ja conseguiu
+                    if not os.path.isfile(filename):
+                        df_data.to_csv(filename, sep=";", index=False)
+                    else: # else it exists so append without writing the header
+                        df_data.to_csv(filename, sep=";", index=False, mode='a', header=False)
+
+                except Exception as ex:
+                    print(ex)
+                    import ipdb;ipdb.set_trace()
+
+        finally:
+            self._driver.quit()
+   
+    def _get_internal_link_companies(self):
+        """ corre empresas da barra lateral extraindo os links internos"""
+        links = []
+        old_len_link = 0
+        scroll_count = 0
+        count_without_link = 0
+        while True:
+            if links and len(links) > 5 and len(links) == old_len_link:
+                LOGGER.info("chegou ao final da lista")
+                break
+
+            old_len_link = len(links)
+
+            companies = self._wait_elements_by_xpath(COMPANIES_SIDE_BAR)
+            for company in companies:
+                href = company.get_attribute('href')
+                if not href:
+                    count_without_link +=1
+                    LOGGER.info(f"sem link: {count_without_link}")
+                    continue
+
+                links.append(href)
+                
+
+            for _ in range(0, 10):
+                utils.force_time_sleep(random.choice(range(1, 5)), f'scrollando side bar {scroll_count}')
+                    
+                self._wait_element_by_xpath('/html').send_keys(Keys.PAGE_DOWN)
+                scroll_count +=1
+
+            
+            try:
+                # clica no ultimo elemento para poder habilitar o scrolls
+                company.click()
+            except selenium_ex.ElementClickInterceptedException:
+                continue
+
+            links = list(set(links))
+            LOGGER.info(f"[Total scrolls: {scroll_count}] [Total links: {len(links)}] [Sem link: {count_without_link}]")
+        
+        return links
+
+    def _get_data(self, url):
+        self._access_url(url)
+
+        # estrutura sempre é a mesma porém muda a posição da div
+        div = 1
+        limit = 100
+        while True:
+            if div >= limit:
+                break
+
+            LOGGER.info(f"tentando localizar na div: {div}")
+            block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH_NEW.replace('{cont}', str(div)))
+            if utils.has_cep(block.text):
+                break
+            div +=1
+
+        self._driver.execute_script("arguments[0].scrollIntoView();", block)
+        block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH_NEW.replace('{cont}', str(div)))
+        if not block.text:
+            return False
+
+        infos = block.text.split("\n")
+        address = None
+        phone = None
+        site = None
+        type = None
+        name = None
+
+        regex_address = re.compile(r'(\d{5}-\d{3})')
+        regex_phone = re.compile(r'^([()\d\s]+)([\d-]+)$')
+        regex_site = re.compile(r"((http|https)://)?(www.)?" +
+                                "[a-zA-Z0-9@:%._\\+~#?&//=]" +
+                                "{2,256}\\.[a-z]" +
+                                "{2,6}\\b([-a-zA-Z0-9@:%" +
+                                "._\\+~#?&//=]*)")        
+        for info in infos:
+            if "," in info:
+                if regex_address.search(info):
+                    address = info
+                    continue
+
+            if regex_phone.match(info):
+                phone = info
+                continue 
+
+            if regex_site.match(info):
+                site = info
+                continue 
+        
+        if phone:
+            phone = str(utils.only_numbers(phone))
+            type = "CELLPHONE" if utils.is_cellphone(phone) else "PHONE"
+        
+        name = self._wait_element_by_xpath(SEARCH_INPUT_XPATH).get_attribute('value')
+
+        data = {
+            "url": url.split('/data')[0],
+            "type": type, 
+            "phone": phone,
+            "address": address,
+            "site": site,
+            "name": name,
+            "site": site
+        }        
+        return data

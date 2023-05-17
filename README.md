@@ -91,3 +91,5 @@ VR CONSULT LTDA;41.640.274/0001-22;Rua Pais de Araújo, 29 - Cobertura - Itaim B
 fantasy_name;cnpj;exception
 HEALTH MEDICAL;36.954.487/0001-99;block 1 not found
 ```
+
+python run.py get_data_google_maps_by_term 'comércio em campo de santana ,tatuquara e região' '/home/jefferson/Documentos/lead/'
