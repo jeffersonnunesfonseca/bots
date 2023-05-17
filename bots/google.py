@@ -247,10 +247,11 @@ class GetDataGoogleMapsByTerm(Selenium):
 
             old_len_link = len(links)
 
-            for _ in range(0, 10):
-                if len(links) == 0:
+            for x in range(0, 10):
+                if x ==0 and len(links) == 0:
                     companies = self._wait_elements_by_xpath(COMPANIES_SIDE_BAR)
                     companies[0].click()
+                    utils.force_time_sleep(3, "primeiro click")
 
                 utils.force_time_sleep(random.choice(range(1, 5)), f'scrollando side bar {scroll_count}')                    
                 self._wait_element_by_xpath('/html').send_keys(Keys.PAGE_DOWN)
