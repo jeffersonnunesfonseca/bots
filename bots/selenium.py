@@ -18,8 +18,9 @@ from bots import utils
 LOGGER = logging.getLogger(__name__)
 
 class Selenium:
-    def __init__(self) -> None:
+    def __init__(self, remote_url=None) -> None:
         self._driver = None
+        self.remote_url = remote_url
 
     def _get_session(self):
         options = webdriver.ChromeOptions()
@@ -28,8 +29,10 @@ class Selenium:
         options.add_experimental_option("useAutomationExtension", False)
         options.add_experimental_option("excludeSwitches",["enable-automation", "enable-logging"])
         options.add_argument('--ignore-certificate-errors')   
-        self._driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-        # self._driver = webdriver.Remote(options=options, command_executor="http://127.0.0.1:4444/wd/hub")   
+        if self.remote_url:
+            self._driver = webdriver.Remote(options=options, command_executor=self.remote_url)   
+        else:
+            self._driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
         self._driver.maximize_window()
 
     def _access_url(self, url):

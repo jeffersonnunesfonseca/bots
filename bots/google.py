@@ -177,8 +177,6 @@ class GetDataByGoogleMaps:
             return None
         
         return int(''.join(i for i in string if i.isdigit()))
-    
-
 
 class GetDataGoogleMapsByTerm(Selenium):
     """ Busca dados do google maps a partir de um termo de busca, exemplo:
@@ -186,8 +184,8 @@ class GetDataGoogleMapsByTerm(Selenium):
     """
     URL_BASE = "https://www.google.com.br/maps/search/{term}"
 
-    def __init__(self, term, path_to_save) -> None:
-        super().__init__()
+    def __init__(self, term, path_to_save, remote_url=None) -> None:
+        super().__init__(remote_url=remote_url)
         self.term = term # busca que deseja realizar coleta
         self.links = None
         self.last_link = None
@@ -201,15 +199,19 @@ class GetDataGoogleMapsByTerm(Selenium):
                 self._access_url(url)
                 self.links = self._get_internal_link_companies()
 
+            total = len(self.links)
             LOGGER.info(f"Total links: {len(self.links)}")
 
-            filename = f'{self.path_to_save}lead_{datetime.now().strftime("%Y%m%d")}.csv'            
-            for link in self.links:
+            filename = f'{self.path_to_save}lead_{datetime.now().strftime("%Y%m%d")}.csv'         
+            count_total_not_found = 0   
+            
+            for idx, link in enumerate(self.links):
                 if self.last_link and link != self.last_link:
                     continue
 
                 self.last_link = None
-                
+                LOGGER.info(f"[{idx} de {total}] [Total not found: {count_total_not_found}]")
+
                 try:
                     data = self._get_data(link)
                     df_data = pd.DataFrame([data])                   
@@ -220,10 +222,15 @@ class GetDataGoogleMapsByTerm(Selenium):
                     else: # else it exists so append without writing the header
                         df_data.to_csv(filename, sep=";", index=False, mode='a', header=False)
 
+                except selenium_ex.NoSuchElementException as ex:
+                    count_total_not_found+=1
+                    continue
+
                 except Exception as ex:
                     print(ex)
                     import ipdb;ipdb.set_trace()
-
+   
+            LOGGER.info(f"[Fim][Total nao encontrado: {count_total_not_found}]")
         finally:
             self._driver.quit()
    
@@ -277,7 +284,7 @@ class GetDataGoogleMapsByTerm(Selenium):
         limit = 100
         while True:
             if div >= limit:
-                break
+                raise selenium_ex.NoSuchElementException('passou de div 100')
 
             LOGGER.info(f"tentando localizar na div: {div}")
             block = self._driver.find_element(By.XPATH, DATA_COMPANY_XPATH_NEW.replace('{cont}', str(div)))
