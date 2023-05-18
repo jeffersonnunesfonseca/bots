@@ -36,7 +36,6 @@ class Selenium:
         self._driver.maximize_window()
 
     def _access_url(self, url):
-        LOGGER.info(f"acessando url {url}")
         self._driver.get(url)
         utils.force_time_sleep(10, f"acessando url {url}")
     
@@ -48,7 +47,6 @@ class Selenium:
             return wait.until(EC.presence_of_element_located((By.XPATH, xpath)))   
             
         except selenium_ex.TimeoutException as ex:
-            LOGGER.error(f"[_wait_element_by_xpath][TimeoutException] elemento não localizado {xpath}")            
             return False
         
     def _wait_elements_by_xpath(self, xpath: str, wait_time: int = 30):
@@ -59,5 +57,4 @@ class Selenium:
             return wait.until(EC.presence_of_all_elements_located((By.XPATH, xpath)))   
           
         except selenium_ex.TimeoutException as ex:
-            LOGGER.error(f"[_wait_elements_by_xpath][TimeoutException] elemento não localizado {xpath}")            
             return False

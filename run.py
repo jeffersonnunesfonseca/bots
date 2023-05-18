@@ -47,5 +47,15 @@ def get_data_google_maps_by_term(term: str, path_to_save: str):
 
     obj.execute()
 
+def send_whatsapp():
+    path_to_report = '/home/jefferson/Documentos/reports.csv'
+    remote_url = "http://127.0.0.1:4444/wd/hub"
+    urls = ['https://web.whatsapp.com/send/?phone=5541997668808&text=Ol%C3%A1,%20te%20encontrei%20no%20Google!%0A%0ASou%20Jefferson%20Fonseca,%20especialista%20em%20solu%C3%A7%C3%B5es%20tecnol%C3%B3gicas.%20Estou%20validando%20uma%20ideia%20para%20criar%20meu%20pr%C3%B3prio%20neg%C3%B3cio%20e%20gostaria%20da%20sua%20opini%C3%A3o.%0A%0APoderia%20responder%20a%20algumas%20perguntas%20r%C3%A1pidas?%20Criei%20um%20formul%C3%A1rio%20no%20Google%20Forms%20para%20entender%20melhor%20as%20necessidades%20e%20desafios%20enfrentados%20por%20profissionais%20como%20voc%C3%AA.%0A%0ALevar%C3%A1%20menos%20de%201%20minuto%20do%20seu%20tempo.%20Acesse%20o%20formul%C3%A1rio%20aqui:%20https://forms.gle/Y17vZAshHwNjBpAz5.%0A%0ASua%20contribui%C3%A7%C3%A3o%20ser%C3%A1%20muito%20valiosa%20para%20moldar%20meu%20projeto.%20Agrade%C3%A7o%20antecipadamente!%0A%0AAtenciosamente,%0A%0AJefferson%20Fonseca']
+    
+    from bots.whatsapp import Whatsapp
+    bot = Whatsapp(path_to_report, remote_url)
+    bot.urls = urls
+    bot.execute()
+    
 if __name__ == "__main__":
     fire.Fire()
