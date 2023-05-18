@@ -2,6 +2,7 @@ import os
 import random
 import pandas as pd
 import logging
+
 from bots.selenium import Selenium
 from bots import utils
 
@@ -13,14 +14,18 @@ XPATH_BTN_SEND_MSG = '/html/body/div[1]/div/div/div[5]/div/footer/div[1]/div/spa
 URL_BASE = 'https://web.whatsapp.com/'
 
 class Whatsapp(Selenium):
-    def __init__(self, path_to_report, remote_url=None) -> None:
+    def __init__(self, path_to_phones, path_to_msg, path_to_report, remote_url=None) -> None:
         super().__init__(remote_url=remote_url)
 
-        self.urls = []
+        self.path_to_phones = path_to_phones
+        self.path_to_msgs = path_to_msg
         self.path_to_report = path_to_report
         self.last_url = None
     
-    def execute(self):    
+    def execute(self):   
+
+        urls = self._mount_urls()
+
         self._get_session()
         self._access_url(URL_BASE)
         
@@ -28,11 +33,11 @@ class Whatsapp(Selenium):
             utils.force_time_sleep(10, "Aguardando leitura qrcode")
 
         LOGGER.info("login esta ok")
-        total = len(self.urls)
+        total = len(urls)
         cont_invalid = 0
         cont_sent = 0
 
-        for index, url in enumerate(self.urls):
+        for index, url in enumerate(urls):
             if self.last_url and url != self.last_url:
                     continue
             
@@ -75,3 +80,26 @@ class Whatsapp(Selenium):
     def _send_msg(self):
         btn = self._wait_element_by_xpath(XPATH_BTN_SEND_MSG)        
         btn.click()
+
+    def _mount_urls(self):
+        url_msgs = []
+        msgs = [row['message'] for index, row in pd.read_csv(self.path_to_msgs, sep=';').iterrows()]
+        if not msgs:
+            raise Exception(f"sem mensagens no arquivo {self.path_to_msgs}")
+        
+        phones = pd.read_csv(self.path_to_phones, sep=';')
+        if phones.empty:
+            raise Exception(f"sem telefones no arquivo {self.path_to_phones}")
+        
+        phones = phones.drop_duplicates(['phone'])
+
+        for index, row in phones.iterrows():
+            msg = random.choice(msgs)
+            phone = str(row['phone'])
+            if phone[0:2] != "55":
+                phone = f"55{phone}"
+            
+            url_msg = f"{URL_BASE}send/?phone={phone}&text={msg}"
+            url_msgs.append(url_msg)
+        
+        return url_msgs

@@ -53,7 +53,7 @@ cnpj;fantasy_name
 
 ```
 
-# Bot para coletar dados Google Maps
+# Bot para coletar dados Google Maps baseado na planilha gerada pela casa dos dados
 
 ## Obs:
 - todos arquivos gerados serão salvos em `/tmp`
@@ -92,11 +92,67 @@ fantasy_name;cnpj;exception
 HEALTH MEDICAL;36.954.487/0001-99;block 1 not found
 ```
 
-python run.py get_data_google_maps_by_term 'comércio em campo de santana ,tatuquara e região' '/home/jefferson/Documentos/lead/'
+
+# Bot para coletar dados Google Maps baseado em um termo de pesquisa
+
+## Obs:
+ - Você irá passar um termo e o bot irá coletar informações de todas as empresas localizadas na busca
+## Requerimentos:
+ - saber o termo a ser buscado e uma caminho onde será salvo os dados
+### Explicação:
+    -   para rodar basta executar: 
+    ```
+    python run.py get_data_google_maps_by_term '<term>' '<path_to_save> <remote_url>'
+                            termo a ser buscado /\
+                            lugar onde seá salvo o resultado /\
+                                                url servidor selenium se tiver /\
+
+    ```
+    - Exemplo real:
+    ```
+        python run.py get_data_google_maps_by_term 'comércio em campo de santana ,tatuquara e região' '~/Documentos/lead/' 'http://127.0.0.1:4444/wd/hub'
+    ```
 
 
-envio whatsapp
-python run.py send_whatsapp
+# Bot para envio de mensagem no whatsapp
 
-subir selenium server
+## Obs:
+ - Bot pega uma lista de telefones e uma lista com mensagens e começa a enviar, necessário realizar a leitura do qrcode, a ideia da lista de mensagens é para não enviar sempre a mesma para que o whats nao bloqueie.
+## Requerimentos: 
+ - Você irá passar um caminho de um `.csv` com os numeros de telefone e um outro `.csv` com as mensagens, no momento ainda sem parametros, importante a msg deve estar encodada no padrão de url, pode utilizar esse (site)[https://www.urlencoder.org/]
+ separador será `;`
+### Explicação:
+    -   para rodar basta executar: 
+    ```
+    python run.py send_whatsapp '<phone_path>' '<msg_path>' '<report_path>' '<remote_url>'
+    caminho do arquivo com os telefones /\
+            caminho do arquivo com as mensagens /\
+                            caminho onde será salvo os relatórios /\
+                                                url servidor selenium se tiver /\
+
+
+    ```
+    - Exemplo real:
+    ```
+        python run.py send_whatsapp '~/Documentos/phones.csv' '~/Documentos/messages.csv' '~/Documentos/reports.csv' 'http://127.0.0.1:4444/wd/hub'
+    ```
+
+- layout do `telefones.csv`:
+```
+phone
+41997668808
+41997308146
+```
+
+- layout do `msgs.csv`:
+```
+message
+Ol%C3%A1%2C%20te%20encontrei%20no%20Google%21%0A%0ASou%20Jefferson%20Nunes%20Fonseca%2C%20especialista%20em%20solu%C3%A7%C3%B5es%20tecnol%C3%B3gicas.%20Estou%20validando%20uma%20ideia%20para%20criar%20meu%20pr%C3%B3prio%20neg%C3%B3cio%20e%20gostaria%20da%20sua%20opini%C3%A3o.%0A%0APoderia%20responder%20a%20algumas%20perguntas%20r%C3%A1pidas%3F%20Criei%20um%20formul%C3%A1rio%20no%20Google%20Forms%20para%20entender%20melhor%20as%20necessidades%20e%20desafios%20enfrentados%20por%20profissionais%20como%20voc%C3%AA.%0A%0ALevar%C3%A1%20menos%20de%201%20minuto%20do%20seu%20tempo.%20Acesse%20o%20formul%C3%A1rio%20aqui%3A%20https%3A%2F%2Fforms.gle%2FY17vZAshHwNjBpAz5.%0A%0ASua%20contribui%C3%A7%C3%A3o%20ser%C3%A1%20muito%20valiosa%20para%20moldar%20meu%20projeto.%20Agrade%C3%A7o%20antecipadamente%21%0A%0AAtenciosamente%2C%0A%0AJefferson%20Nunes%20Fonseca
+Ol%C3%A1%2C%20me%20chamo%20Jefferson%20Fonseca%20e%20te%20encontrei%20no%20Google%21%0A%0ASou%20especialista%20em%20solu%C3%A7%C3%B5es%20tecnol%C3%B3gicas.%20Estou%20validando%20uma%20ideia%20para%20criar%20meu%20pr%C3%B3prio%20neg%C3%B3cio%20e%20gostaria%20da%20sua%20opini%C3%A3o.%0A%0ALevar%C3%A1%20menos%20de%201%20minuto%20do%20seu%20tempo.%20Acesse%20o%20formul%C3%A1rio%20aqui%3A%20https%3A%2F%2Fforms.gle%2FY17vZAshHwNjBpAz5.%0A%0ASua%20contribui%C3%A7%C3%A3o%20ser%C3%A1%20muito%20valiosa%20para%20moldar%20meu%20projeto.%20Agrade%C3%A7o%20antecipadamente%21
+
+
+```
+# SUBIR SELENIUM SERVER
+```
 sh run_selenium_server.sh
+```
