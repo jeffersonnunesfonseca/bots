@@ -110,7 +110,7 @@ HEALTH MEDICAL;36.954.487/0001-99;block 1 not found
     ```
     - Exemplo real:
     ```
-        python run.py get_data_google_maps_by_term 'comércio em campo de santana ,tatuquara e região' '~/Documentos/lead/' 'http://127.0.0.1:4444/wd/hub'
+        python run.py get_data_google_maps_by_term 'comércios em santa rita curitiba' '/home/jefferson/Documentos/lead/' 'http://127.0.0.1:4444/wd/hub'
     ```
 
 
@@ -134,7 +134,7 @@ HEALTH MEDICAL;36.954.487/0001-99;block 1 not found
     ```
     - Exemplo real:
     ```
-        python run.py send_whatsapp '~/Documentos/phones.csv' '~/Documentos/messages.csv' '~/Documentos/reports.csv' 'http://127.0.0.1:4444/wd/hub'
+        python run.py send_whatsapp '/home/jefferson/Documentos/phones.csv' '/home/jefferson/Documentos/messages.csv' '~/Documentos/reports.csv' 'http://127.0.0.1:4444/wd/hub'
     ```
 
 - layout do `telefones.csv`:

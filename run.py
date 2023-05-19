@@ -41,10 +41,7 @@ def get_data_by_google_maps(path_to_companies=None, last_cnpj=None, only_celphon
 def get_data_google_maps_by_term(term: str, path_to_save: str, remote_url=None):
     
     from bots.google import GetDataGoogleMapsByTerm
-    # remote_url = "http://127.0.0.1:4444/wd/hub"
     obj = GetDataGoogleMapsByTerm(term, path_to_save, remote_url)    
-
-
     obj.execute()
 
 def send_whatsapp(path_to_phones, path_to_messages, path_to_report, remote_url=None):
