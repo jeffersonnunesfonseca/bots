@@ -201,6 +201,7 @@ class GetDataGoogleMapsByTerm(Selenium):
 
             total = len(self.links)
             LOGGER.info(f"Total links: {len(self.links)}")
+            LOGGER.info(f"Caso ocorra algum problema basta copia-los e setar o atributo self.links: {self.links}")
 
             filename = f'{self.path_to_save}lead_{datetime.now().strftime("%Y%m%d")}.csv'         
             count_total_not_found = 0   
